@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speedy Publication - Online CBT Quiz</title>
+    <style>
+        :root {
+            --primary-color: #002b49;
+            --secondary-color: #e60000;
+            --accent-color: #ffcc00;
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+            
+            /* Palette Colors */
+            --status-answered: #28a745;
+            --status-not-answered: #dc3545;
+            --status-review: #ffc107;
+            --status-not-visited: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Channel Branding Header */
+        header {
+            background-color: var(--white);
+            border-bottom: 3px solid var(--secondary-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, var(--accent-color) 70%, var(--secondary-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .brand-text h1 {
+            font-size: 22px;
+            color: var(--primary-color);
+            letter-spacing: 0.5px;
+        }
+        
+        .brand-text p {
+            font-size: 12px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .buy-link {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .buy-link:hover {
+            background-color: var(--white);
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Main Layout */
+        .quiz-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        /* Left Side: Quiz Screen */
+        .quiz-box {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .quiz-header {
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            background-color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-card:hover {
+            background-color: #edf2f7;
+            border-color: #cbd5e1;
+        }
+
+        .option-card.selected {
+            background-color: #ebf8ff;
+            border-color: #3182ce;
+            font-weight: 600;
+        }
+
+        .option-prefix {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 26px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .option-card.selected .option-prefix {
+            background-color: #3182ce;
+            color: var(--white);
+        }
+
+        /* Action Buttons */
+        .control-btns {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 2px solid #edf2f7;
+            padding-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-prev { background-color: #cbd5e1; color: #334155; }
+        .btn-prev:hover { background-color: #94a3b8; }
+
+        .btn-next { background-color: var(--primary-color); color: var(--white); }
+        .btn-next:hover { background-color: #001f35; }
+
+        .btn-review { background-color: var(--status-review); color: #000; }
+        .btn-review:hover { background-color: #e0a800; }
+
+        .btn-clear { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .btn-clear:hover { background-color: #e2e8f0; }
+
+        .btn-submit { background-color: var(--secondary-color); color: var(--white); }
+        .btn-submit:hover { background-color: #cc0000; }
+
+        /* Right Side: Palette Panel */
+        .palette-box {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+        }
+
+        .palette-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 8px;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .palette-cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            background-color: var(--status-not-visited);
+            transition: all 0.2s ease;
+        }
+
+        .palette-cell.current {
+            outline: 3px solid #3182ce;
+            outline-offset: 2px;
+        }
+
+        .palette-cell.not-visited { background-color: #cbd5e1; color: #475569; }
+        .palette-cell.not-answered { background-color: var(--status-not-answered); }
+        .palette-cell.answered { background-color: var(--status-answered); }
+        .palette-cell.review { background-color: var(--status-review); color: #000; }
+
+        /* Legend Indicators */
+        .legend-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+            border-top: 1px solid #edf2f7;
+            padding-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* Result View CSS */
+        .result-box {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 900px;
+            margin: 20px auto;
+            width: 100%;
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-title {
+            color: var(--primary-color);
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .metric-val {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--status-answered);
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        .review-section {
+            margin-top: 40px;
+        }
+
+        .review-item {
+            background-color: #fafafa;
+            border-left: 5px solid #cbd5e1;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .review-item.correct-item { border-left-color: var(--status-answered); background-color: #f6fef9; }
+        .review-item.incorrect-item { border-left-color: var(--status-not-answered); background-color: #fffafb; }
+
+        .review-q { font-weight: 600; margin-bottom: 10px; }
+        .review-ans-info { font-size: 14px; margin-top: 5px; }
+
+        @media(max-width: 850px) {
+            .quiz-container {
+                grid-template-columns: 1fr;
+            }
+            .palette-box {
+                order: -1;
+            }
+            .palette-grid {
+                grid-template-columns: repeat(10, 1fr);
+            }
+        }
+        @media(max-width: 480px) {
+            .palette-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-container">
+            <div class="brand-text">
+                <h1>SPEEDY PUBLICATION</h1>
+                <p>GI Tags (Updated Till 1 July 2026)।</p>
+            </div>
+        </div>
+        <a href="https://www.amazon.in/s?k=Suchit+Kumar&i=stripbooks" target="_blank" class="buy-link">Buy Latest Speedy CA Book : Click Here</a>
+    </header>
+
+    <div class="quiz-container" id="main-quiz-interface">
+        <div class="quiz-box">
+            <div>
+                <div class="quiz-header">
+                    <span class="question-number" id="q-num-display">Question 1 of 32</span>
+                    <span style="font-size: 14px; color: var(--status-not-visited); font-weight: bold;">Helpful For All Govt. Exams</span>
+                </div>
+                <div class="question-text" id="q-text">Loading question text...</div>
+                <div class="options-container" id="options-box">
+                    </div>
+            </div>
+
+            <div class="control-btns">
+                <div>
+                    <button class="btn btn-prev" id="btn-prev" onclick="navigate(-1)">Previous</button>
+                    <button class="btn btn-clear" onclick="clearSelection()">Clear Response</button>
+                    <button class="btn btn-review" onclick="markForReview()">Mark for Review</button>
+                </div>
+                <div>
+                    <button class="btn btn-next" id="btn-next" onclick="navigate(1)">Save & Next</button>
+                    <button class="btn btn-submit" id="btn-final-submit" onclick="showResults()" style="display: none;">Submit Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="palette-box">
+            <div class="palette-title">Question Palette</div>
+            <div class="palette-grid" id="palette-grid-box">
+                </div>
+            
+            <div class="legend-box">
+                <div class="legend-item"><div class="legend-dot" style="background-color: #cbd5e1;"></div> Visited</div>
+                <div class="legend-item"><div class="legend-dot" style="background-color: var(--status-not-answered);"></div> Not Answered</div>
+                <div class="legend-item"><div class="legend-dot" style="background-color: var(--status-answered);"></div> Answered</div>
+                <div class="legend-item"><div class="legend-dot" style="background-color: var(--status-review);"></div> For Review</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-box" id="result-screen">
+        <div class="result-header">
+            <h2 class="result-title">Quiz Performance Report</h2>
+            <p>Speedy Publication Current Affairs 2025-2026 Compilation</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="score-progress"></div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card" style="border-top-color: var(--primary-color)">Total Questions<div class="metric-val" id="m-total">32</div></div>
+            <div class="metric-card" style="border-top-color: var(--status-review)">Attempted<div class="metric-val" id="m-attempted">0</div></div>
+            <div class="metric-card" style="border-top-color: var(--status-answered)">Correct<div class="metric-val" id="m-correct" style="color: var(--status-answered)">0</div></div>
+            <div class="metric-card" style="border-top-color: var(--status-not-answered)">Incorrect<div class="metric-val" id="m-incorrect" style="color: var(--status-not-answered)">0</div></div>
+            <div class="metric-card" style="border-top-color: var(--accent-color)">Score Percentage<div class="metric-val" id="m-percent">0%</div></div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button class="btn btn-next" onclick="restartQuiz()" style="padding: 12px 30px; font-size:16px;">Restart Assessment</button>
+        </div>
+
+        <div class="review-section">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color); border-bottom: 2px solid #cbd5e1; padding-bottom: 8px;">Questions Evaluation & Answer Key</h3>
+            <div id="review-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 32 Dynamic Questions from user input with GI TAG context injection
+        const questions = [
+            {
+                question: "वर्ष 2026 में चर्चा में रही 'जादुपटिया पेंटिंग' का संबंध मुख्य रूप से भारत के किस राज्य से है, जिसे इसके सांस्कृतिक महत्व के कारण GI TAG श्रेणी में प्रमुख स्थान मिला?",
+                options: ["झारखंड", "मध्य प्रदेश", "असम", "राजस्थान"],
+                correct: 0,
+                explanation: "जादुपटिया पेंटिंग झारखंड की एक अत्यंत प्रसिद्ध पारंपरिक लोक कला है।"
+            },
+            {
+                question: "वर्ष 2026 में किस राज्य से संबंधित पारंपरिक वाद्ययंत्र 'सारिंदा' को विशिष्ट पहचान एवं भावी GI TAG के दावों के साथ रेखांकित किया गया?",
+                options: ["असम", "त्रिपुरा", "सिक्किम", "अरुणाचल प्रदेश"],
+                correct: 1,
+                explanation: "सारिंदा त्रिपुरा का एक महत्वपूर्ण पारंपरिक तार वाला वाद्ययंत्र है।"
+            },
+            {
+                question: "असम के प्रसिद्ध 'बिहू पेपा वाद्ययंत्र' (2026) को बनाने के लिए मुख्य रूप से किस जीव के सींग का उपयोग किया जाता है, जिसे विशिष्ट GI TAG पहचान देने की माँग उठाई गई है?",
+                options: ["हिरण", "गाय", "भैंस", "बकरी"],
+                correct: 2,
+                explanation: "बिहू पेपा वाद्ययंत्र मुख्य रूप से जल भैंस के सींग और बांस से बनाया जाता है।"
+            },
+            {
+                question: "अपनी सुंदर नक्काशी और धातु के काम के लिए प्रसिद्ध 'जसदान पटारी संदूक' (2026) का संबंध किस राज्य से है, जिसे विरासत शिल्प कला के रूप में GI TAG का गौरव प्राप्त है?",
+                options: ["मध्य प्रदेश", "राजस्थान", "तमिलनाडु", "गुजरात"],
+                correct: 3,
+                explanation: "जसदान पटारी संदूक गुजरात की एक प्रसिद्ध पारंपरिक हस्तकला है।"
+            },
+            {
+                question: "औषधीय गुणों के लिए प्रसिद्ध 'नागौरी अश्वगंधा' (2026) का संबंध किस राज्य से है, जिसे हाल ही में भौगोलिक संकेतक (GI TAG) प्रदान कर पहचान सुदृढ़ की गई?",
+                options: ["राजस्थान", "गुजरात", "आंध्र प्रदेश", "केरल"],
+                correct: 0,
+                explanation: "नागौरी अश्वगंधा राजस्थान के नागौर जिले की एक प्रसिद्ध औषधीय फसल है।"
+            },
+            {
+                question: "इतिहास और असाधारण आकार के लिए प्रसिद्ध 'खुरासानी इमली' (2026) का संबंध मध्य प्रदेश के किस ऐतिहासिक क्षेत्र से है, जिसे कृषि/विरासत उत्पाद श्रेणी में GI TAG मान्यता मिली?",
+                options: ["ग्वालियर", "मांडू (धार)", "खजुराहो", "ओरछा"],
+                correct: 1,
+                explanation: "खुरासानी इमली मुख्य रूप से मध्य प्रदेश के मांडू क्षेत्र में पाई जाती है।"
+            },
+            {
+                question: "वर्ष 2025 में मान्यता प्राप्त विशिष्ट 'पोंडरू खादी' (हाथ से बना सूती कपड़ा) का संबंध किस राज्य से है, जो अपने उत्कृष्ट बारीक कताई के कारण GI TAG प्राप्त कर चुका है?",
+                options: ["तमिलनाडु", "तेलंगाना", "आंध्र प्रदेश", "केरल"],
+                correct: 2,
+                explanation: "पोंडरू खादी आंध्र प्रदेश के श्रीकाकुलम जिले का एक विशेष हाथ से कता और बुना कपड़ा है।"
+            },
+            {
+                question: "कपड़ा उद्योग में अपनी विशिष्ट बुनाई के लिए प्रसिद्ध 'वोरैयूर कॉटन साड़ी' का संबंध किस राज्य से है, जो इसके विशिष्ट भौगोलिक उद्गम हेतु GI TAG से रक्षित है?",
+                options: ["आंध्र प्रदेश", "केरल", "कर्नाटक", "तमिलनाडु"],
+                correct: 3,
+                explanation: "वोरैयूर कॉटन साड़ी तमिलनाडु के त्रिची क्षेत्र की एक पारंपरिक कला है।"
+            },
+            {
+                question: "वर्ष 2025 में चर्चा में रहा 'कविंदापडी शक्कर' (पारंपरिक गुड़/शक्कर) तमिलनाडु के किस जिले से संबंधित है, जिसे उच्च गुणवत्ता मानकों हेतु GI TAG दिया गया है?",
+                options: ["इरोड", "मदुरै", "सेलम", "तंजावुर"],
+                correct: 0,
+                explanation: "कविंदापडी शक्कर तमिलनाडु के इरोड जिले का एक प्रसिद्ध पारंपरिक उत्पाद है।"
+            },
+            {
+                question: "अपनी बेहतरीन खुशबू और रोग-प्रतिरोधक क्षमता के लिए जाना जाने वाला पारंपरिक 'थूयमल्ली चावल' (2025) किस राज्य के कृषि वर्ग का GI TAG उत्पाद है?",
+                options: ["पश्चिम बंगाल", "तमिलनाडु", "असम", "आंध्र प्रदेश"],
+                correct: 1,
+                explanation: "थूयमल्ली तमिलनाडु का एक पारंपरिक और रोग-प्रतिरोधी चावल है।"
+            },
+            {
+                question: "लकड़ी के पारंपरिक खिलौने और बर्तनों के लिए प्रसिद्ध 'अंबासमुद्रम चोप्पु' (2025) का संबंध किस राज्य से है, जिसे इसकी अनूठी काष्ठकला शैली के लिए GI TAG प्राप्त हुआ है?",
+                options: ["तमिलनाडु", "केरल", "कर्नाटक", "तेलंगाना"],
+                correct: 0,
+                explanation: "अंबासमुद्रम चोप्पु तमिलनाडु के तिरुनेलवेली जिले के पारंपरिक लकड़ी के खिलौने हैं।"
+            },
+            {
+                question: "रसोई के बर्तनों के लिए प्रसिद्ध 'नमक्कल सॉफ्ट स्टोन कुकवेयर' (2025) किस राज्य की अनूठी हस्तकला है, जिसे इसके विशेष प्राकृतिक पत्थरों के गुणों की वजह से GI TAG प्रदान किया गया?",
+                options: ["आंध्र प्रदेश", "तमिलनाडु", "ओड़िशा", "मध्य प्रदेश"],
+                correct: 1,
+                explanation: "यह तमिलनाडु के नमक्कल क्षेत्र में मिलने वाले विशेष पत्थरों से बनाया जाने वाला कुकवेयर है।"
+            },
+            {
+                question: "अपनी मिठास और पतले छिलके के लिए प्रसिद्ध 'मंदारिन संतरे' (2025) का संबंध किस भौगोलिक क्षेत्र से है, जिसे इसकी विशिष्ट गुणवत्ता हेतु GI TAG प्राप्त है?",
+                options: ["नागपुर", "कूर्ग", "दार्जिलिंग", "जाफा"],
+                correct: 2,
+                explanation: "मंदारिन संतरे पश्चिम बंगाल के दार्जिलिंग पहाड़ी क्षेत्र की एक विशेषता हैं।"
+            },
+            {
+                question: "संगीत संस्कृति का हिस्सा 'तुंगबुक' और 'पुमटोंग पुलित' नामक वाद्ययंत्र (2025) किस पूर्वोत्तर राज्य से संबंधित हैं, जिन्हें पारंपरिक विरासत के रूप में GI TAG प्रक्रिया में शामिल किया गया?",
+                options: ["मेघालय", "त्रिपुरा", "नागालैंड", "सिक्किम"],
+                correct: 3,
+                explanation: "ये दोनों सिक्किम के लेप्चा समुदाय के पारंपरिक वाद्ययंत्र हैं।"
+            },
+            {
+                question: "वर्ष 2025 में विशेष जनजातीय पहचान और सुरक्षा की दृष्टि से GI TAG पाने वाला बहुउपयोगी 'दाओ' (एक प्रकार का पारंपरिक ब्लेड/हथियार) किस राज्य से संबंधित है?",
+                options: ["अरुणाचल प्रदेश", "मिजोरम", "मणिपुर", "असम"],
+                correct: 0,
+                explanation: "दाओ अरुणाचल प्रदेश की जनजातियों का एक बहुउपयोगी पारंपरिक ब्लेड/हथियार है।"
+            },
+            {
+                question: "वर्ष 2025 में विशिष्ट भौगोलिक संकेतक (GI TAG) की दौड़ व प्रक्रिया में रहा प्राकृतिक 'हीरा' मध्य प्रदेश के किस विशेष जिले के खनन क्षेत्र से संबंधित है?",
+                options: ["पन्ना", "छतरपुर", "सतना", "रीवा"],
+                correct: 0,
+                explanation: "मध्य प्रदेश का पन्ना जिला भारत में अपने अनूठे हीरा भंडारों और खनन के लिए प्रसिद्ध है।"
+            },
+            {
+                question: "वास्तुकला और प्राचीन मंदिरों में उपयोग होने वाला भव्य 'अंबाजी संगमरमर' (2025) मुख्य रूप से किस राज्य से आता है, जिसे इसके भौगोलिक उद्गम सुरक्षा हेतु GI TAG मिला?",
+                options: ["राजस्थान", "गुजरात", "मध्य प्रदेश", "उत्तर प्रदेश"],
+                correct: 1,
+                explanation: "अंबाजी संगमरमर गुजरात के बनासकांठा जिले से संबंधित एक उच्च गुणवत्ता वाला सफेद संगमरमर है।"
+            },
+            {
+                question: "काजू से निर्मित प्रसिद्ध पारंपरिक मादक पेय 'ओजो फेनी' (2025) का संबंध किस राज्य से है, जो अपने अनोखे डिस्टिलेशन और ऐतिहासिक महत्व के कारण भारत के शुरुआती प्रमुख GI TAG उत्पादों में गिना जाता है?",
+                options: ["केरल", "महाराष्ट्र", "गोवा", "कर्नाटक"],
+                correct: 2,
+                explanation: "फेनी गोवा का एक अत्यंत प्रसिद्ध और पारंपरिक मादक पेय है।"
+            },
+            {
+                question: "मरुस्थलीय क्षेत्र की प्रसिद्ध सब्जी 'सांगरी बीन' (खेजड़ी फली) (2025) का संबंध मुख्य रूप से किस राज्य से है, जिसे स्थानीय पर्यावरण अनुकूलता के कारण GI TAG टैग से सम्मानित किया गया?",
+                options: ["गुजरात", "हरियाणा", "मध्य प्रदेश", "राजस्थान"],
+                correct: 3,
+                explanation: "सांगरी राजस्थान के राज्य वृक्ष 'खेजड़ी' की फली है, जो वहाँ के पारंपरिक व्यंजनों का मुख्य हिस्सा है।"
+            },
+            {
+                question: "बांस और विशेष जंगली घास से निर्मित पारंपरिक आदिवासी हस्तकला 'कन्नड़िप्पया' (2025) का संबंध किस राज्य से है, जिसे कदार जनजाति की अनूठी कला संरक्षण हेतु GI TAG प्रदान किया गया है?",
+                options: ["केरल", "तमिलनाडु", "आंध्र प्रदेश", "ओड़िशा"],
+                correct: 0,
+                explanation: "कन्नड़िप्पया केरल की कदार जनजाति द्वारा बनाई जाने वाली एक विशेष पारंपरिक चटाई/हस्तकला है।"
+            },
+            {
+                question: "एरी सिल्क (मूंगा रेशम) से निर्मित प्रसिद्ध पारंपरिक हैंडलूम उत्पाद 'रिंडिया' (2025) किस राज्य से संबंधित है, जिसे वस्त्र कला श्रेणी में प्रतिष्ठित GI TAG प्राप्त है?",
+                options: ["असम", "मेघालय", "नागालैंड", "मणिपुर"],
+                correct: 1,
+                explanation: "रिंडिया मेघालय का एक पारंपरिक हाथ से बुना हुआ रेशमी कपड़ा/शॉल है।"
+            },
+            {
+                question: "जनजातीय संस्कृति और अद्वितीय हस्तशिल्प बुनाई की विशेष पहचान 'खासी हैंडलूम' (2025) का संबंध भारत के किस राज्य से है, जिसे भौगोलिक संकेतक (GI TAG) का सुरक्षा कवच मिला है?",
+                options: ["मेघालय", "मिजोरम", "त्रिपुरा", "अरुणाचल प्रदेश"],
+                correct: 0,
+                explanation: "खासी हैंडलूम मेघालय की प्रसिद्ध खासी जनजाति की पारंपरिक बुनाई कला है।"
+            },
+            {
+                question: "शास्त्रीय संगीत की आत्मा माने जाने वाले 'बनारसी शहनाई' और 'बनारसी तबला' (2025) का संबंध किस राज्य से है, जिन्हें संगीत वाद्ययंत्र विनिर्माण कला श्रेणी में प्रसिद्ध GI TAG प्राप्त हुआ?",
+                options: ["बिहार", "मध्य प्रदेश", "उत्तर प्रदेश", "राजस्थान"],
+                correct: 2,
+                explanation: "वाराणसी (बनारस), उत्तर प्रदेश अपने संगीत घरानों और इन पारंपरिक वाद्ययंत्रों के निर्माण के लिए विश्व प्रसिद्ध है।"
+            },
+            {
+                question: "अपनी अनूठी मिठास, रसीलेपन और पतले छिलके के लिए सुप्रसिद्ध 'अमलसाद चीकू' (2025) का संबंध किस राज्य से है, जिसे हाल ही में कृषि उत्पाद के रूप में GI TAG से सुसज्जित किया गया?",
+                options: ["महाराष्ट्र", "गुजरात", "कर्नाटक", "आंध्र प्रदेश"],
+                correct: 1,
+                explanation: "अमलसाद चीकू गुजरात के नवसारी जिले का एक बेहद लोकप्रिय फल है।"
+            },
+            {
+                question: "सर्दियों के मौसम की सबसे लोकप्रिय मिठाई 'नोलेन गुड़ संदेश' (2025) का संबंध किस राज्य की पाक कला से है, जिसे इसकी विशिष्ट सांस्कृतिक मिठास और विरासत संरक्षण के लिए GI TAG दिया गया है?",
+                options: ["ओड़िशा", "बिहार", "पश्चिम Bengal", "असम"],
+                correct: 2,
+                explanation: "खजूर के ताजे गुड़ (नोलेन गुड़) से बनी यह संदेश मिठाई पश्चिम बंगाल की एक अनूठी पहचान है।"
+            },
+            {
+                question: "कपड़ों पर हाथ से की जाने वाली छपाई की सदियों पुरानी तकनीक 'सौदागिरी ब्लॉक प्रिंट' (2025) का संबंध मुख्य रूप से किस शहर से है, जिसे टेक्सटाइल क्राफ्ट के रूप में GI TAG प्राप्त है?",
+                options: ["जयपुर", "अहमदाबाद", "इंदौर", "दूरत"],
+                correct: 1,
+                explanation: "सौदागिरी ब्लॉक प्रिंट गुजरात के अहमदाबाद क्षेत्र की एक पारंपरिक छपाई कला है।"
+            },
+            {
+                question: "त्रिपुरा की पारंपरिक पोशाक 'रिगनाई पचरा' (2025) को GI TAG के तहत विशिष्टता मिली है, इसमें 'पचरा' शब्द का वास्तविक अर्थ निम्नलिखित में से क्या है?",
+                options: ["ऊपरी वस्त्र (दुपट्टा/शॉल)", "निचला वस्त्र (स्कर्ट)", "सिर की पोशाक", "पारंपरिक आभूषण"],
+                correct: 0,
+                explanation: "रिगनाई निचला वस्त्र होता है और पचरा ऊपरी शरीर को ढकने वाला पारंपरिक कपड़ा होता है।"
+            },
+            {
+                question: "भारतीय शास्त्रीय संगीत उपकरणों के निर्माण के सबसे बड़े वैश्विक केंद्र 'मिराज शहर' (2025) के तानपुरा और सितार को प्रतिष्ठित GI TAG मिला है, यह शहर किस राज्य में स्थित है?",
+                options: ["मध्य प्रदेश", "कर्नाटक", "महाराष्ट्र", "गुजरात"],
+                correct: 2,
+                explanation: "महाराष्ट्र का मिराज शहर (सांगली जिला) अपने बेहतरीन सितार और तानपुरा निर्माण के लिए जाना जाता है।"
+            },
+            {
+                question: "अपनी अनूठी कोमलता, औषधीय बनावट और चबाने के बेजोड़ स्वाद के लिए प्रसिद्ध 'कुंभकोणम पान का पत्ता' (2025) किस राज्य का विख्यात कृषि GI TAG उत्पाद है?",
+                options: ["तमिलनाडु", "केरल", "आंध्र प्रदेश", "उत्तर प्रदेश"],
+                correct: 0,
+                explanation: "कुंभकोणम पान का पत्ता तमिलनाडु के तंजावुर क्षेत्र की एक प्रसिद्ध कृषि उपज है।"
+            },
+            {
+                question: "शादियों और उत्सवों की श्रृंगार कला में इस्तेमाल होने वाली विशेष और सुगंधित 'थोवलाई फूल माला' (2025) तमिलनाडु के किस जिले की GI TAG प्राप्त सांस्कृतिक धरोहर है?",
+                options: ["मदुरै", "कन्याकुमारी", "कोयंबटूर", "चेन्नई"],
+                correct: 1,
+                explanation: "थोवलाई फूल बाजार और यहाँ की अनूठी मालाएँ तमिलनाडु के कन्याकुमारी जिले में प्रसिद्ध हैं।"
+            },
+            {
+                question: "अपने टमाटर जैसे गोलाकार आकार और गहरे तीखेपन से रहित लाल रंग के लिए प्रसिद्ध 'वारंगल चपाता मिर्च' (2025) किस राज्य की कृषि श्रेणी की GI TAG फसल है?",
+                options: ["आंध्र प्रदेश", "कर्नाटक", "तमिलनाडु", "तेलंगाना"],
+                correct: 3,
+                explanation: "चपाता मिर्च तेलंगाना के वारंगल क्षेत्र की एक अनूठी कम तीखी मिर्च है।"
+            },
+            {
+                question: "अंतरराष्ट्रीय स्तर पर क्रिकेट बैट निर्माण में क्रांति लाने वाला और दुनिया भर में सबसे मजबूत माना जाने वाला 'कश्मीर विलो बैट' (2025) मुख्य रूप से किस राज्य/केंद्रशासित प्रदेश का अमूल्य GI TAG उत्पाद है?",
+                options: ["हिमाचल प्रदेश", "उत्तराखंड", "जम्मू-कश्मीर", "पंजाब"],
+                correct: 2,
+                explanation: "कश्मीर विलो (Kashmir Willow) से बने क्रिकेट बैट दुनिया भर में अपनी मजबूती के लिए प्रसिद्ध हैं।"
+            }
+        ];
+
+        let currentIdx = 0;
+        const userAnswers = new Array(questions.length).fill(null);
+        const questionStatus = new Array(questions.length).fill('not-visited'); // not-visited, not-answered, answered, review
+
+        // Initialize App
+        function initQuiz() {
+            renderPalette();
+            loadQuestion(0);
+        }
+
+        // Render Right CBT Side Grid Palette
+        function renderPalette() {
+            const grid = document.getElementById('palette-grid-box');
+            grid.innerHTML = '';
+            
+            questions.forEach((_, idx) => {
+                const cell = document.createElement('button');
+                cell.className = `palette-cell ${questionStatus[idx]}`;
+                if (idx === currentIdx) cell.classList.add('current');
+                cell.innerText = idx + 1;
+                cell.onclick = () => jumpToQuestion(idx);
+                grid.appendChild(cell);
+            });
+        }
+
+        // Load targeted Index Question
+        function loadQuestion(idx) {
+            // Update old current status if not saved or touched
+            if(questionStatus[currentIdx] === 'not-visited') {
+                questionStatus[currentIdx] = 'not-answered';
+            }
+
+            currentIdx = idx;
+            if(questionStatus[currentIdx] === 'not-visited') {
+                questionStatus[currentIdx] = 'not-answered';
+            }
+
+            // Interface Content Injection
+            document.getElementById('q-num-display').innerText = `Question ${currentIdx + 1} of ${questions.length}`;
+            document.getElementById('q-text').innerText = questions[currentIdx].question;
+            
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+            questions[currentIdx].options.forEach((opt, oIdx) => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                if(userAnswers[currentIdx] === oIdx) card.classList.add('selected');
+                
+                card.onclick = () => selectOption(oIdx);
+                card.innerHTML = `<span class="option-prefix">${prefixes[oIdx]}</span> ${opt}`;
+                optionsBox.appendChild(card);
+            });
+
+            // Adjust navigation buttons visibility
+            document.getElementById('btn-prev').style.disabled = (currentIdx === 0);
+            
+            if(currentIdx === questions.length - 1) {
+                document.getElementById('btn-next').style.display = 'none';
+                document.getElementById('btn-final-submit').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-next').style.display = 'inline-block';
+                document.getElementById('btn-final-submit').style.display = 'none';
+            }
+
+            renderPalette();
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentIdx] = optIdx;
+            questionStatus[currentIdx] = 'answered';
+            
+            // Re-render choices visually instantly
+            const cards = document.querySelectorAll('.option-card');
+            cards.forEach((c, idx) => {
+                if(idx === optIdx) c.classList.add('selected');
+                else c.classList.remove('selected');
+            });
+            renderPalette();
+        }
+
+        function clearSelection() {
+            userAnswers[currentIdx] = null;
+            questionStatus[currentIdx] = 'not-answered';
+            loadQuestion(currentIdx);
+        }
+
+        function markForReview() {
+            questionStatus[currentIdx] = 'review';
+            navigate(1);
+        }
+
+        function navigate(step) {
+            let target = currentIdx + step;
+            if(target >= 0 && target < questions.length) {
+                loadQuestion(target);
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            loadQuestion(idx);
+        }
+
+        // Show Comprehensive Summary Evaluation Screen
+        function showResults() {
+            let correctCount = 0;
+            let attemptedCount = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if(ans !== null) {
+                    attemptedCount++;
+                    if(ans === questions[idx].correct) correctCount++;
+                }
+            });
+
+            let incorrectCount = attemptedCount - correctCount;
+            let percentage = Math.round((correctCount / questions.length) * 100);
+
+            // Hide Quiz Box, Show Result Sheet
+            document.getElementById('main-quiz-interface').style.display = 'none';
+            const resScreen = document.getElementById('result-screen');
+            resScreen.style.display = 'block';
+
+            // Set Metrics text
+            document.getElementById('m-attempted').innerText = attemptedCount;
+            document.getElementById('m-correct').innerText = correctCount;
+            document.getElementById('m-incorrect').innerText = incorrectCount;
+            document.getElementById('m-percent').innerText = `${percentage}%`;
+            
+            // Progress Animate Bar
+            document.getElementById('score-progress').style.width = `${percentage}%`;
+
+            // Complete Answer Sheet Evaluation Renderer
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+            
+            const prefixes = ['A', 'B', 'C', 'D'];
+            questions.forEach((q, idx) => {
+                const item = document.createElement('div');
+                let userAnsText = (userAnswers[idx] !== null) ? `${prefixes[userAnswers[idx]]}) ${q.options[userAnswers[idx]]}` : "Not Attempted";
+                let correctAnsText = `${prefixes[q.correct]}) ${q.options[q.correct]}`;
+                
+                let isCorrect = (userAnswers[idx] === q.correct);
+                item.className = `review-item ${userAnswers[idx] === null ? '' : (isCorrect ? 'correct-item' : 'incorrect-item')}`;
+
+                item.innerHTML = `
+                    <div class="review-q">Q${idx + 1}. ${q.question}</div>
+                    <div class="review-ans-info"><strong>Your Selection:</strong> <span style="color:${isCorrect ? 'green' : 'red'}">${userAnsText}</span></div>
+                    <div class="review-ans-info"><strong>Correct Answer:</strong> <span style="color:green; font-weight:bold;">${correctAnsText}</span></div>
+                    <div class="review-ans-info" style="margin-top:8px; font-style:italic; color:#555;"><strong>विवरण:</strong> ${q.explanation}</div>
+                `;
+                reviewList.appendChild(item);
+            });
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function restartQuiz() {
+            currentIdx = 0;
+            userAnswers.fill(null);
+            questionStatus.fill('not-visited');
+            
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('main-quiz-interface').style.display = 'grid';
+            
+            initQuiz();
+        }
+
+        // Start initialization procedures on window layout load
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
