@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPEEDY PUBLICATION - Online Quiz</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --accent-color: #3182ce;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --success-color: #38a169;
+            --danger-color: #e53e3e;
+            --warning-color: #d69e2e;
+            --grey-color: #cbd5e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .buy-link {
+            background-color: #ecc94b;
+            color: #744210;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .buy-link:hover {
+            background-color: #d69e2e;
+            color: white;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Quiz Section */
+        .quiz-section {
+            flex: 3;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .q-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background-color: #edf2f7;
+            border: 2px solid #e2e8f0;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .option-btn.selected {
+            border-color: var(--secondary-color);
+            background-color: #ebf8ff;
+        }
+
+        .option-btn.correct {
+            background-color: #c6f6d5 !important;
+            border-color: var(--success-color) !important;
+            color: #22543d;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #fed7d7 !important;
+            border-color: var(--danger-color) !important;
+            color: #742a2a;
+        }
+
+        .info-box {
+            background-color: #ebf8ff;
+            border-left: 4px solid var(--accent-color);
+            padding: 12px 15px;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 2px solid var(--bg-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-prev { background-color: #e2e8f0; color: #4a5568; }
+        .btn-next { background-color: var(--secondary-color); color: white; }
+        .btn-review { background-color: var(--warning-color); color: white; }
+        .btn-submit { background-color: var(--success-color); color: white; }
+
+        .btn:hover { opacity: 0.9; }
+
+        /* Palette Section */
+        .palette-section {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-width: 280px;
+        }
+
+        .palette-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .p-btn {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: var(--grey-color);
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .p-btn.active { outline: 3px solid var(--primary-color); }
+        .p-btn.answered { background-color: var(--success-color); color: white; }
+        .p-btn.unanswered { background-color: var(--danger-color); color: white; }
+        .p-btn.review { background-color: var(--warning-color); color: white; }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        /* Result Container */
+        .result-container {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .progress-bar-container {
+            background-color: #e2e8f0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .review-section {
+            margin-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .review-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .palette-section {
+                order: 2;
+            }
+            .quiz-section {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand-title">SPEEDY PUBLICATION</div>
+        <a href="https://www.amazon.in/s?k=Suchit+Kumar&i=stripbooks" target="_blank" class="buy-link">
+            Buy Latest Speedy CA Book : Click Here
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container" id="quizContainer">
+        <!-- Quiz Main Screen -->
+        <div class="quiz-section">
+            <div class="q-header">
+                <span class="q-number" id="qNumDisplay">प्रश्न 1 / 35</span>
+            </div>
+
+            <div class="q-text" id="questionText">लोड हो रहा है...</div>
+
+            <div class="options-container" id="optionsContainer"></div>
+
+            <div class="info-box" id="infoBox"></div>
+
+            <div class="controls">
+                <button class="btn btn-prev" id="prevBtn" onclick="navigate(-1)">पिछला (Previous)</button>
+                <button class="btn btn-review" id="reviewBtn" onclick="markForReview()">रिव्यू के लिए चिन्हित करें</button>
+                <button class="btn btn-next" id="nextBtn" onclick="navigate(1)">अगला (Next)</button>
+                <button class="btn btn-submit" id="submitBtn" onclick="submitQuiz()">सबमिट करें (Submit)</button>
+            </div>
+        </div>
+
+        <!-- Question Palette -->
+        <div class="palette-section">
+            <div class="palette-title">प्रश्न पैलेट (Question Palette)</div>
+            <div class="palette-grid" id="paletteGrid"></div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:var(--success-color)"></div> उत्तर दिया</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--danger-color)"></div> उत्तर नहीं दिया</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--warning-color)"></div> समीक्षा हेतु</div>
+                <div class="legend-item"><div class="legend-color" style="background:var(--grey-color)"></div> देखा नहीं गया</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div class="result-container" id="resultContainer">
+        <div class="result-header">
+            <h2>परीक्षा परिणाम (Quiz Summary)</h2>
+        </div>
+
+        <div class="score-card">
+            <div class="stat-box">
+                <div class="stat-value" id="resTotal">35</div>
+                <div class="stat-label">कुल प्रश्न</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="resAttempted">0</div>
+                <div class="stat-label">प्रयास किए गए</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="resCorrect" style="color: var(--success-color);">0</div>
+                <div class="stat-label">सही उत्तर</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="resIncorrect" style="color: var(--danger-color);">0</div>
+                <div class="stat-label">गलत उत्तर</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="resScore">0%</div>
+                <div class="stat-label">प्रतिशत (Percentage)</div>
+            </div>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button class="btn btn-next" onclick="location.reload()">पुनः प्रयास करें (Restart Quiz)</button>
+        </div>
+
+        <div class="review-section">
+            <h3>उत्तरों का विश्लेषण (Detailed Review):</h3>
+            <div id="reviewList"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "'पीएम-विजय ऐप' किसके द्वारा जारी किया गया है?",
+                options: ["शिक्षा मंत्रालय", "सामाजिक न्याय एवं अधिकारिता मंत्रालय", "गृह मंत्रालय", "नीति आयोग"],
+                correct: 1,
+                info: "उद्देश्य: अनुसूचित जाति योजनाओं की वास्तविक समय निगरानी के लिए।"
+            },
+            {
+                q: "सामाजिक न्याय एवं अधिकारिता मंत्रालय द्वारा जारी 'JEEVAN ऐप' का मुख्य उद्देश्य क्या है?",
+                options: ["वरिष्ठ नागरिकों के जीवन को आसान बनाने के लिए", "युवाओं को डिजिटल कौशल प्रदान करने के लिए", "महिला उद्यमियों को सहायता देने के लिए", "ग्रामीण विकास को बढ़ावा देने के लिए"],
+                correct: 0,
+                info: "जारीकर्ता: सामाजिक न्याय एवं अधिकारिता मंत्रालय"
+            },
+            {
+                q: "'श्रममित्र ऐप' किस राज्य सरकार द्वारा श्रमिकों (मजदूरों) और काम देने वालों (नियोक्ताओं) को सीधे जोड़ने के उद्देश्य से जारी किया गया है?",
+                options: ["उत्तर प्रदेश सरकार", "राजस्थान सरकार", "पंजाब सरकार", "हरियाणा सरकार"],
+                correct: 3,
+                info: "जारीकर्ता: हरियाणा सरकार"
+            },
+            {
+                q: "स्कूली बच्चों में विकलांगताओं के शुरुआती चरण की पहचान करने के लिए 'प्रशस्त 2.0 ऐप' किसने जारी किया है?",
+                options: ["NCERT", "CBSE", "UGC", "AICTE"],
+                correct: 0,
+                info: "जारीकर्ता: NCERT"
+            },
+            {
+                q: "'ई-श्रम साथी ऐप' छत्तीसगढ़ सरकार द्वारा किस उद्देश्य से शुरू किया गया है?",
+                options: ["किसानों को लोन देने के लिए", "श्रमिकों को सरकारी कल्याणकारी योजनाओं से डिजिटल रूप से जोड़ने के लिए", "छात्रों को छात्रवृत्ति प्रदान करने के लिए", "स्वास्थ्य सेवाओं के प्रसार के लिए"],
+                correct: 1,
+                info: "जारीकर्ता: छत्तीसगढ़ सरकार"
+            },
+            {
+                q: "आपदा की जानकारी एवं वास्तविक समय में आपदाओं की रिपोर्टिंग के लिए 'खुआरेल ऐप' किस सरकार द्वारा जारी किया गया है?",
+                options: ["असम सरकार", "मणिपुर सरकार", "मिजोरम सरकार", "नागालैंड सरकार"],
+                correct: 2,
+                info: "जारीकर्ता: मिजोरम सरकार"
+            },
+            {
+                q: "भारतीय रेलवे द्वारा महिला कर्मचारियों के यौन उत्पीड़न घटना अधिसूचना सशक्तिकरण के लिए कौन सा ऐप जारी किया गया है?",
+                options: ["SHINE ऐप", "R-Mitra ऐप", "SURAKSHA ऐप", "SAHI NAV ऐप"],
+                correct: 0,
+                info: "जारीकर्ता: भारतीय रेलवे"
+            },
+            {
+                q: "महिला एवं बाल विकास मंत्रालय द्वारा जारी 'पंखुड़ी पोर्टल' का मुख्य उद्देश्य क्या है?",
+                options: ["महिला स्वयं सहायता समूहों को लोन देना", "इसके माध्यम से कोई व्यक्ति या संगठन महिला एवं बाल कल्याण योजनाओं में आर्थिक योगदान कर सकता है एवं योजना क्रियान्वयन की निगरानी कर सकता है", "बच्चों को मुफ्त शिक्षा प्रदान करना", "कामकाजी महिलाओं को आवास सुविधा प्रदान करना"],
+                correct: 1,
+                info: "जारीकर्ता: महिला एवं बाल विकास मंत्रालय"
+            },
+            {
+                q: "'SATHEE पोर्टल' शिक्षा मंत्रालय एवं किस संस्थान द्वारा संयुक्त रूप से जारी किया गया है?",
+                options: ["IIT दिल्ली", "IIT बॉम्बे", "IIT कानपुर", "IIT मद्रास"],
+                correct: 2,
+                info: "उद्देश्य: आर्थिक रूप से कमजोर छात्रों को मुफ्त उच्च गुणवत्ता वाली शिक्षा प्रदान करने हेतु।"
+            },
+            {
+                q: "एकीकृत भूमि रिकॉर्ड प्रबंधन और पंजीकरण के लिए 'भू भारती पोर्टल' किस राज्य सरकार द्वारा लॉन्च किया गया है?",
+                options: ["आंध्र प्रदेश सरकार", "तेलंगाना सरकार", "कर्नाटक सरकार", "तमिलनाडु सरकार"],
+                correct: 1,
+                info: "जारीकर्ता: तेलंगाना सरकार"
+            },
+            {
+                q: "उत्तराखंड सरकार द्वारा चारधाम यात्रा 2026 के लिए शुरू की गई डिजिटल स्वास्थ्य पहल का नाम क्या है?",
+                options: ["ई-स्वास्थ्य धाम पोर्टल", "देवभूमि हेल्थ पोर्टल", "चारधाम संजीवनी ऐप", "ई-सुगम यात्रा ऐप"],
+                correct: 0,
+                info: "जारीकर्ता: उत्तराखंड सरकार"
+            },
+            {
+                q: "'आशा वैन मोबाइल इकाई' गुजरात सरकार द्वारा किस उद्देश्य के लिए शुरू की गई है?",
+                options: ["टीबी रोगियों के इलाज के लिए", "मातृ स्वास्थ्य की देखभाल के लिए", "कैंसर का शीघ्र पता लगाने और उनकी जांच के लिए", "आपातकालीन एम्बुलेंस सेवा के रूप में"],
+                correct: 2,
+                info: "जारीकर्ता: गुजरात सरकार"
+            },
+            {
+                q: "उत्तर प्रदेश सरकार द्वारा जारी 'निवेश मित्र 3.0' क्या है?",
+                options: ["AI संचालित विंडो है, जो राज्य में निवेश की प्रक्रिया को आसान बनाएगा", "किसानों के लिए सब्सिडी देने का पोर्टल", "युवाओं को स्टार्ट-अप फंड देने की योजना", "विदेशी पर्यटकों के लिए एकल खिड़की"],
+                correct: 0,
+                info: "जारीकर्ता: उत्तर प्रदेश सरकार"
+            },
+            {
+                q: "कार्यस्थल पर यौन उत्पीड़न की ऑनलाइन शिकायत दर्ज करने के लिए महिला एवं बाल विकास मंत्रालय ने कौन सा पोर्टल शुरू किया है?",
+                options: ["Nari Portal", "She-Box पोर्टल", "Sakhi Portal", "POSH Portal"],
+                correct: 1,
+                info: "जारीकर्ता: महिला एवं बाल विकास मंत्रालय"
+            },
+            {
+                q: "'भारत-विस्तार ऐप' कृषि मंत्री शिवराज सिंह चौहान द्वारा जारी किया गया है। इसका उद्देश्य क्या है?",
+                options: ["किसानों को सस्ती दरों पर बीज उपलब्ध कराना", "कृषि ऋण की ऑनलाइन स्वीकृति देना", "किसानों को उनकी अपनी भाषा में खेती से जुड़ी सटीक जानकारी देने के लिए", "फसलों के न्यूनतम समर्थन मूल्य (MSP) की जानकारी देना"],
+                correct: 2,
+                info: "जारीकर्ता: कृषि मंत्री शिवराज सिंह चौहान"
+            },
+            {
+                q: "कर्नाटक सरकार द्वारा महिला उद्यमियों के उत्पादों को प्रदर्शित और विपणन करने के लिए कौन सा पोर्टल लॉन्च किया गया है?",
+                options: ["महिला शक्ति पोर्टल", "गृह लक्ष्मी पोर्टल", "स्त्री समृद्धि पोर्टल", "वी-हब पोर्टल"],
+                correct: 1,
+                info: "जारीकर्ता: कर्नाटक सरकार"
+            },
+            {
+                q: "दूरसंचार विभाग (DoT) द्वारा जारी 'संचार साथी ऐप' का उद्देश्य क्या है?",
+                options: ["मुफ्त वाई-फाई सुविधा प्रदान करना", "मोबाइल डिवाइस में इस्तेमाल होने वाले IMEI की वास्तविकता वेरीफाई करने के लिए", "5G नेटवर्क कवरेज की जांच करना", "सिम कार्ड पोर्ट कराने की सुविधा देना"],
+                correct: 1,
+                info: "जारीकर्ता: दूरसंचार विभाग"
+            },
+            {
+                q: "'सुजलम भारत ऐप' किस मंत्रालय द्वारा ग्रामीण पेयजल प्रणालियों को ट्रैक करने, प्रबंधित करने और बेहतर बनाने के लिए शुरू किया गया है?",
+                options: ["ग्रामीण विकास मंत्रालय", "पर्यावरण मंत्रालय", "जलशक्ति मंत्रालय", "पंचायती राज मंत्रालय"],
+                correct: 2,
+                info: "जारीकर्ता: जलशक्ति मंत्रालय"
+            },
+            {
+                q: "युवाओं को रोजगार देने के लिए कर्नाटक सरकार ने कौन सा पोर्टल लॉन्च किया है?",
+                options: ["कायका सेतु पोर्टल", "युवा कौशल पोर्टल", "कर्नाटक रोजगार ऐप", "उधोग सेतु पोर्टल"],
+                correct: 0,
+                info: "जारीकर्ता: कर्नाटक सरकार"
+            },
+            {
+                q: "केंद्रीय मंत्री मनसुख मांडविया द्वारा 'MY Bharat ऐप' किस उद्देश्य से लॉन्च किया गया है?",
+                options: ["खेल प्रतिभाओं की खोज हेतु", "युवा नेतृत्व और सामाजिक भागीदारी के लिए एक ऑनलाइन मंच प्रदान करने हेतु", "डिजिटल साक्षरता बढ़ाने हेतु", "उच्च शिक्षा में छात्रवृत्ति हेतु"],
+                correct: 1,
+                info: "जारीकर्ता: केंद्रीय मंत्री मनसुख मांडविया"
+            },
+            {
+                q: "एम्स दिल्ली द्वारा 'नेवर अलोन ऐप' (Never Alone App) किस उद्देश्य से जारी किया गया है?",
+                options: ["बुजुर्गों की स्वास्थ्य देखभाल के लिए", "अवसादग्रस्त रोगियों की ट्रैकिंग के लिए", "छात्रों में आत्महत्या की प्रवृत्ति को रोकने के लिए", "आपातकालीन प्राथमिक चिकित्सा सहायता हेतु"],
+                correct: 2,
+                info: "जारीकर्ता: एम्स दिल्ली"
+            },
+            {
+                q: "पीएम नरेंद्र मोदी द्वारा जारी 'पीएम सेतु पोर्टल' का मुख्य उद्देश्य क्या है?",
+                options: ["देश में नए राष्ट्रीय राजमार्गों का निर्माण", "भारत के औद्योगिक प्रशिक्षण संस्थानों (ITI's) का आधुनिकीकरण करने के लिए", "बंदरगाहों को आपस में जोड़ना", "ग्रामीण पुलों का निर्माण और रखरखाव"],
+                correct: 1,
+                info: "जारीकर्ता: पीएम नरेंद्र मोदी"
+            },
+            {
+                q: "किसानों से न्यूनतम समर्थन मूल्य (MSP) पर कपास की खरीद के लिए 'कपास किसान ऐप' किसने जारी किया है?",
+                options: ["कृषि एवं किसान कल्याण मंत्री", "वाणिज्य एवं उद्योग मंत्री", "केंद्रीय कपड़ा मंत्री गिरिराज सिंह", "खाद्य एवं सार्वजनिक वितरण मंत्री"],
+                correct: 2,
+                info: "जारीकर्ता: केंद्रीय कपड़ा मंत्री गिरिराज सिंह"
+            },
+            {
+                q: "'समीर 2.0 ऐप' (Sameer 2.0 App) किसके द्वारा देश के नागरिकों को वास्तविक समय में वायु गुणवत्ता की जानकारी देने के लिए जारी किया गया है?",
+                options: ["मौसम विज्ञान विभाग (IMD)", "केंद्रीय प्रदूषण नियंत्रण बोर्ड (CPCB)", "नीति आयोग", "पर्यावरण एवं वन मंत्रालय"],
+                correct: 1,
+                info: "जारीकर्ता: केंद्रीय प्रदूषण नियंत्रण बोर्ड (CPCB)"
+            },
+            {
+                q: "मानव-हाथी संघर्ष की बढ़ती चुनौती से निपटने के लिए 'गज रक्षक ऐप' किस राज्य द्वारा जारी किया गया है?",
+                options: ["असम", "केरल", "ओडिशा", "मध्य प्रदेश"],
+                correct: 3,
+                info: "जारीकर्ता: मध्य प्रदेश सरकार"
+            },
+            {
+                q: "संस्कृति मंत्रालय, भारत सरकार द्वारा जारी 'ज्ञान भारतम् पोर्टल' का उद्देश्य क्या है?",
+                options: ["देश के प्राचीन मंदिरों का जीर्णोद्धार", "देश की समृद्ध पांडुलिपि धरोहर को डिजिटलीकृत और संरक्षित करने के लिए", "सांस्कृतिक लोक कलाओं को बढ़ावा देना", "भारतीय भाषाओं का अनुवाद करना"],
+                correct: 1,
+                info: "जारीकर्ता: संस्कृति मंत्रालय, भारत सरकार"
+            },
+            {
+                q: "मतदान के आंकड़े तेजी से और पारदर्शी तरीके से सार्वजनिक करने के लिए 'ECINET ऐप' किसने जारी किया है?",
+                options: ["भारतीय चुनाव आयोग", "गृह मंत्रालय", "सूचना एवं प्रसारण मंत्रालय", "सुप्रीम कोर्ट ऑफ इंडिया"],
+                correct: 0,
+                info: "जारीकर्ता: भारतीय चुनाव आयोग"
+            },
+            {
+                q: "UPSC में चयनित न हो पाने वाले मेधावी उम्मीदवारों को रोजगार प्रदान करने हेतु 'प्रतिभा सेतु पोर्टल' किसने जारी किया है?",
+                options: ["कर्मचारी चयन आयोग (SSC)", "संघ लोक सेवा आयोग (UPSC)", "कार्मिक एवं प्रशिक्षण विभाग (DoPT)", "नीति आयोग"],
+                correct: 1,
+                info: "जारीकर्ता: संघ लोक सेवा आयोग (UPSC)"
+            },
+            {
+                q: "ग्रामीण पेयजल योजना में पारदर्शिता लाने के उद्देश्य से 'सुजलाम भारत ऐप' किस मंत्रालय द्वारा जारी किया गया है?",
+                options: ["पंचायती राज मंत्रालय", "केंद्रीय जल शक्ति मंत्रालय", "ग्रामीण विकास मंत्रालय", "आवास और शहरी मामलों के मंत्रालय"],
+                correct: 1,
+                info: "जारीकर्ता: केंद्रीय जल शक्ति मंत्रालय"
+            },
+            {
+                q: "'प्रवाह पोर्टल' (PRAVAAH Portal) विनियामक प्रक्रियाओं को सुव्यवस्थित, डिजिटाइज और अधिक पारदर्शी बनाने के लिए किसके द्वारा जारी किया गया है?",
+                options: ["SEBI", "IRDAI", "भारतीय रिजर्व बैंक (RBI)", "वित्त मंत्रालय"],
+                correct: 2,
+                info: "जारीकर्ता: भारतीय रिजर्व बैंक (RBI)"
+            },
+            {
+                q: "देशभर में वक्फ संपत्तियों के बेहतर प्रबंधन और पारदर्शिता को बढ़ावा देने के लिए केंद्र सरकार ने कौन सा पोर्टल शुरू किया है?",
+                options: ["UMEED पोर्टल", "AMAN पोर्टल", "WAKF-Care पोर्टल", "QAUMI पोर्टल"],
+                correct: 0,
+                info: "जारीकर्ता: केंद्र सरकार"
+            },
+            {
+                q: "लोगों को प्राकृतिक आपदाओं से सचेत रखने के लिए राष्ट्रीय आपदा प्रबंधन प्राधिकरण (NDMA) ने कौन सा ऐप जारी किया है?",
+                options: ["'सतर्क' ऐप", "'सचेत' ऐप", "'सुरक्षा' ऐप", "'आपदा मित्र' ऐप"],
+                correct: 1,
+                info: "जारीकर्ता: राष्ट्रीय आपदा प्रबंधन प्राधिकरण (NDMA)"
+            },
+            {
+                q: "'AI चैटबॉट सारथी' हरियाणा सरकार द्वारा किस उद्देश्य से लॉन्च किया गया है?",
+                options: ["छात्रों को ऑनलाइन कोचिंग देने के लिए", "ट्रैफिक नियमों की जानकारी देने के लिए", "सरकारी नीतियों तक जनता की पहुँच को आसान बनाने के लिए", "किसानों को मौसम संबंधी अलर्ट भेजने के लिए"],
+                correct: 2,
+                info: "जारीकर्ता: हरियाणा सरकार"
+            },
+            {
+                q: "जम्मू-कश्मीर (स्वास्थ्य विभाग) द्वारा 'e-SEHAT ऐप' किस उद्देश्य से जारी किया गया है?",
+                options: ["केवल ऑनलाइन दवाइयां उपलब्ध कराने के लिए", "राज्य के लोगों के लिए स्वास्थ्य सेवाओं को सुलभ और अधिक प्रभावी बनाने के लिए", "केवल कोविड-19 टीकाकरण के रिकॉर्ड के लिए", "डॉक्टरों की उपस्थिति की निगरानी के लिए"],
+                correct: 1,
+                info: "जारीकर्ता: जम्मू-कश्मीर स्वास्थ्य विभाग"
+            },
+            {
+                q: "बच्चों के नियमित टीकाकरण को बेहतर बनाने के उद्देश्य से 'RISE ऐप' किस राज्य सरकार द्वारा जारी किया गया है?",
+                options: ["बिहार", "उत्तर प्रदेश", "मध्य प्रदेश", "राजस्थान"],
+                correct: 1,
+                info: "जारीकर्ता: उत्तर प्रदेश सरकार"
+            }
+        ];
+
+        let currentQ = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let userStatus = new Array(quizData.length).fill('grey'); // 'grey', 'answered', 'unanswered', 'review'
+
+        function initQuiz() {
+            renderPalette();
+            loadQuestion(currentQ);
+        }
+
+        function renderPalette() {
+            const grid = document.getElementById('paletteGrid');
+            grid.innerHTML = '';
+            quizData.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.className = `p-btn ${userStatus[index]}`;
+                if(index === currentQ) btn.classList.add('active');
+                btn.innerText = index + 1;
+                btn.onclick = () => jumpToQuestion(index);
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQuestion(index) {
+            currentQ = index;
+            if(userStatus[currentQ] === 'grey') {
+                userStatus[currentQ] = 'unanswered';
+            }
+
+            document.getElementById('qNumDisplay').innerText = `प्रश्न ${index + 1} / ${quizData.length}`;
+            document.getElementById('questionText').innerText = quizData[index].q;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            const selectedAns = userAnswers[index];
+            const isAnswered = selectedAns !== null;
+
+            quizData[index].options.forEach((opt, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `${String.fromCharCode(65 + optIdx)}. ${opt}`;
+                
+                if (isAnswered) {
+                    if (optIdx === quizData[index].correct) {
+                        btn.classList.add('correct');
+                    }
+                    if (selectedAns === optIdx && selectedAns !== quizData[index].correct) {
+                        btn.classList.add('incorrect');
+                    }
+                } else {
+                    btn.onclick = () => selectOption(optIdx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            const infoBox = document.getElementById('infoBox');
+            if (isAnswered && quizData[index].info) {
+                infoBox.style.display = 'block';
+                infoBox.innerHTML = `<strong>जानकारी:</strong> ${quizData[index].info}`;
+            } else {
+                infoBox.style.display = 'none';
+            }
+
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').style.display = index === quizData.length - 1 ? 'none' : 'inline-block';
+            
+            renderPalette();
+        }
+
+        function selectOption(optIndex) {
+            userAnswers[currentQ] = optIndex;
+            userStatus[currentQ] = 'answered';
+            loadQuestion(currentQ);
+        }
+
+        function markForReview() {
+            userStatus[currentQ] = 'review';
+            renderPalette();
+            if(currentQ < quizData.length - 1) navigate(1);
+        }
+
+        function navigate(direction) {
+            let nextIndex = currentQ + direction;
+            if (nextIndex >= 0 && nextIndex < quizData.length) {
+                loadQuestion(nextIndex);
+            }
+        }
+
+        function jumpToQuestion(index) {
+            loadQuestion(index);
+        }
+
+        function submitQuiz() {
+            if (confirm("क्या आप वाकई क्विज़ सबमिट करना चाहते हैं?")) {
+                document.getElementById('quizContainer').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+
+                let correctCount = 0;
+                let attemptedCount = 0;
+
+                const reviewList = document.getElementById('reviewList');
+                reviewList.innerHTML = '';
+
+                quizData.forEach((q, idx) => {
+                    const userAns = userAnswers[idx];
+                    const isCorrect = userAns === q.correct;
+                    
+                    if (userAns !== null) attemptedCount++;
+                    if (isCorrect) correctCount++;
+
+                    const reviewItem = document.createElement('div');
+                    reviewItem.className = 'review-item';
+                    reviewItem.style.borderColor = userAns === null ? '#cbd5e0' : (isCorrect ? 'var(--success-color)' : 'var(--danger-color)');
+                    
+                    let userAnsText = userAns !== null ? q.options[userAns] : 'उत्तर नहीं दिया गया';
+                    let correctAnsText = q.options[q.correct];
+
+                    reviewItem.innerHTML = `
+                        <p style="font-weight:bold;">प्र. ${idx + 1}: ${q.q}</p>
+                        <p style="color: ${isCorrect ? 'var(--success-color)' : 'var(--danger-color)'}">आपका उत्तर: ${userAnsText}</p>
+                        <p style="color: var(--success-color)">सही उत्तर: ${correctAnsText}</p>
+                        ${q.info ? `<p style="font-size:0.85rem; color:#4a5568; margin-top:5px;">ℹ️ ${q.info}</p>` : ''}
+                    `;
+                    reviewList.appendChild(reviewItem);
+                });
+
+                const total = quizData.length;
+                const incorrectCount = attemptedCount - correctCount;
+                const scorePercent = Math.round((correctCount / total) * 100);
+
+                document.getElementById('resTotal').innerText = total;
+                document.getElementById('resAttempted').innerText = attemptedCount;
+                document.getElementById('resCorrect').innerText = correctCount;
+                document.getElementById('resIncorrect').innerText = incorrectCount;
+                document.getElementById('resScore').innerText = `${scorePercent}%`;
+
+                document.getElementById('progressBar').style.width = `${scorePercent}%`;
+            }
+        }
+
+        // Initialize application on page load
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
